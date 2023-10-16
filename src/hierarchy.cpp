@@ -19,19 +19,6 @@
 #include <parallel_stable_sort.h>
 #include <pcg32.h>
 
-namespace komb {
-
-class ProfileScope {
-public:
-    explicit ProfileScope(std::string name);
-    ~ProfileScope();
-
-private:
-    std::string name_;
-};
-
-} // namespace komb
-
 AdjacencyMatrix downsample_graph(const AdjacencyMatrix adj, const MatrixXf &V,
                                  const MatrixXf &N, const VectorXf &A,
                                  MatrixXf &V_p, MatrixXf &N_p, VectorXf &A_p,
@@ -70,11 +57,8 @@ AdjacencyMatrix downsample_graph(const AdjacencyMatrix adj, const MatrixXf &V,
     if (progress)
         progress("Downsampling graph (2/6)", 0.0f);
 
-    if (deterministic) {
-        komb::ProfileScope sort_scope("sort entries");
-        // std::stable_sort(entries, entries + nLinks, std::less<Entry>());
+    if (deterministic)
         pss::parallel_stable_sort(entries, entries + nLinks, std::less<Entry>());
-    }
     else
         tbb::parallel_sort(entries, entries + nLinks, std::less<Entry>());
 

@@ -22,26 +22,11 @@
 #include "extract.h"
 #include "bvh.h"
 
-namespace komb {
-
-class ProfileScope {
-public:
-    explicit ProfileScope(std::string name);
-    ~ProfileScope();
-
-private:
-    std::string name_;
-};
-
-} // namespace komb
-
 Mesh batch_process(const Mesh& in_mesh,
                    int rosy, int posy, Float scale, int face_count,
                    int vertex_count, Float creaseAngle, bool extrinsic,
                    bool align_to_boundaries, int smooth_iter, int knn_points,
                    bool pure_quad, bool deterministic) {
-    komb::ProfileScope function_profile_scope("batch_process");
-
     MatrixXu F;
     MatrixXf V, N;
     VectorXf A;
@@ -147,42 +132,32 @@ Mesh batch_process(const Mesh& in_mesh,
     if (bvh) {
         bvh->setData(&mRes.F(), &mRes.V(), &mRes.N());
     } else if (smooth_iter > 0) {
-        komb::ProfileScope bvh_scope("bvh build");
         bvh = new BVH(&mRes.F(), &mRes.V(), &mRes.N(), stats.mAABB);
         bvh->build();
     }
 
-    {
-        komb::ProfileScope optimizer_scope("optimizer");
-        Optimizer optimizer(mRes, false);
-        optimizer.setRoSy(rosy);
-        optimizer.setPoSy(posy);
-        optimizer.setExtrinsic(extrinsic);
+    Optimizer optimizer(mRes, false);
+    optimizer.setRoSy(rosy);
+    optimizer.setPoSy(posy);
+    optimizer.setExtrinsic(extrinsic);
 
-        {
-            komb::ProfileScope local_scope("optimizeOrientations");
-            optimizer.optimizeOrientations(-1);
-            optimizer.notify();
-            optimizer.wait();
-        }
+    optimizer.optimizeOrientations(-1);
+    optimizer.notify();
+    optimizer.wait();
 
-        std::map<uint32_t, uint32_t> sing;
-        compute_orientation_singularities(mRes, sing, extrinsic, rosy);
-        timer.reset();
+    std::map<uint32_t, uint32_t> sing;
+    compute_orientation_singularities(mRes, sing, extrinsic, rosy);
+    timer.reset();
 
-        {
-            komb::ProfileScope local_scope("optimizePositions");
-            optimizer.optimizePositions(-1);
-            optimizer.notify();
-            optimizer.wait();
-        }
+    optimizer.optimizePositions(-1);
+    optimizer.notify();
+    optimizer.wait();
 
-        //std::map<uint32_t, Vector2i> pos_sing;
-        //compute_position_singularities(mRes, sing, pos_sing, extrinsic, rosy, posy);
-        //timer.reset();
+    //std::map<uint32_t, Vector2i> pos_sing;
+    //compute_position_singularities(mRes, sing, pos_sing, extrinsic, rosy, posy);
+    //timer.reset();
 
-        optimizer.shutdown();
-    }
+    optimizer.shutdown();
 
     MatrixXf O_extr, N_extr, Nf_extr;
     std::vector<std::vector<TaggedLink>> adj_extr;
