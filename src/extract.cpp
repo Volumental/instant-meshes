@@ -19,7 +19,7 @@
 #include "bvh.h"
 #include "cleanup.h"
 #include <tbb/concurrent_vector.h>
-#include <parallel_stable_sort.h>
+#include <algorithm>
 #include <unordered_set>
 #include <tuple>
 #include <set>
@@ -174,7 +174,7 @@ extract_graph(const MultiResolutionHierarchy &mRes, bool extrinsic, int rosy, in
         };
 
         if (deterministic)
-            pss::parallel_stable_sort(collapse_edge_vec.begin(), collapse_edge_vec.end(), WeightedEdgeComparator());
+            std::stable_sort(collapse_edge_vec.begin(), collapse_edge_vec.end(), WeightedEdgeComparator());
         else
             tbb::parallel_sort(collapse_edge_vec.begin(), collapse_edge_vec.end(), WeightedEdgeComparator());
 

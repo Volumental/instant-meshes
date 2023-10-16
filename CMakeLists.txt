@@ -78,8 +78,6 @@ endif()
 include_directories(
   # Disjoint set data structure
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/dset
-  # Parallel stable sort
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/pss
   # Pseudorandom number generator
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/pcg32
   # RPLY mesh I/O library

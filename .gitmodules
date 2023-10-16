@@ -4,6 +4,3 @@
 [submodule "ext/dset"]
 	path = ext/dset
 	url = https://github.com/wjakob/dset
-[submodule "ext/pss"]
-	path = ext/pss
-	url = git@github.com:Volumental/pss.git
