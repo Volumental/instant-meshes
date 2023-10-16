@@ -24,6 +24,19 @@
 #include <tuple>
 #include <set>
 
+namespace komb {
+
+class ProfileScope {
+public:
+    explicit ProfileScope(std::string name);
+    ~ProfileScope();
+
+private:
+    std::string name_;
+};
+
+} // namespace komb
+
 typedef std::pair<uint32_t, uint32_t> Edge;
 
 void
@@ -35,6 +48,7 @@ extract_graph(const MultiResolutionHierarchy &mRes, bool extrinsic, int rosy, in
               bool deterministic, bool remove_spurious_vertices,
               bool remove_unnecessary_edges,
               bool snap_vertices) {
+    komb::ProfileScope function_profile_scope("extract_graph");
 
     Float scale = mRes.scale(), inv_scale = 1 / scale;
 
@@ -173,8 +187,11 @@ extract_graph(const MultiResolutionHierarchy &mRes, bool extrinsic, int rosy, in
             bool operator()(const WeightedEdge& e1, const WeightedEdge& e2) const { return e1.second < e2.second; }
         };
 
-        if (deterministic)
+        if (deterministic) {
+            komb::ProfileScope sort_scope("sort edges");
+            // std::stable_sort(collapse_edge_vec.begin(), collapse_edge_vec.end(), WeightedEdgeComparator());
             pss::parallel_stable_sort(collapse_edge_vec.begin(), collapse_edge_vec.end(), WeightedEdgeComparator());
+        }
         else
             tbb::parallel_sort(collapse_edge_vec.begin(), collapse_edge_vec.end(), WeightedEdgeComparator());
 
@@ -248,6 +265,8 @@ extract_graph(const MultiResolutionHierarchy &mRes, bool extrinsic, int rosy, in
         }
 
         {
+            komb::ProfileScope profile_scope("add weights?");
+
             Eigen::VectorXf cluster_weight(nVertices);
             cluster_weight.setZero();
 
@@ -291,6 +310,7 @@ extract_graph(const MultiResolutionHierarchy &mRes, bool extrinsic, int rosy, in
     }
 
     if (remove_unnecessary_edges) {
+        komb::ProfileScope profile_scope("remove_unnecessary_edges");
         bool changed;
         uint32_t nRemoved = 0, nSnapped = 0;
         do {
@@ -464,6 +484,8 @@ extract_graph(const MultiResolutionHierarchy &mRes, bool extrinsic, int rosy, in
         } while (changed);
     }
 
+    komb::ProfileScope profile_scope("atan2 stuff");
+
     tbb::parallel_for(
         tbb::blocked_range<uint32_t>(0u, (uint32_t) O_new.cols(), GRAIN_SIZE),
         [&](const tbb::blocked_range<uint32_t> &range) {
@@ -486,6 +508,7 @@ void extract_faces(std::vector<std::vector<TaggedLink> > &adj, MatrixXf &O,
                    MatrixXf &N, MatrixXf &Nf, MatrixXu &F, int posy,
                    Float scale, std::set<uint32_t> &crease, bool fill_holes,
                    bool pure_quad, BVH *bvh, int smooth_iterations) {
+    komb::ProfileScope profile_scope("extract_faces");
 
     uint32_t nF = 0, nV = O.cols(), nV_old = O.cols();
     F.resize(posy, posy == 4 ? O.cols() : O.cols()*2);
