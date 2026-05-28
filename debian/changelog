@@ -1,0 +1,5 @@
+libinstant-meshes (0.1.1) bookworm; urgency=medium
+
+  * Initial release for Volumental internal use.
+
+ -- Micke Karls <mikael.karls@volumental.com>  Fri, 29 May 2026 09:56:44 +0200

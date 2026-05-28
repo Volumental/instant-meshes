@@ -1,0 +1,38 @@
+Source: libinstant-meshes
+Section: libs
+Priority: optional
+Maintainer: Instore Platorm Team <instore-platform@volumental.com>
+Uploaders:
+ Micke Karls <mikael.karls@volumental.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ cmake,
+ libeigen3-dev,
+ libtbb-dev,
+Standards-Version: 4.7.2
+Homepage: https://github.com/Volumental/instant-meshes
+
+Package: libinstant-meshes0
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Description: Instant field-aligned meshes library (Volumental fork)
+ Library for automatic remeshing of 3D meshes using instant field-aligned
+ methods. This is Volumental's internal fork of the instant-meshes project,
+ modified for use as a shared library in mesh processing pipelines.
+
+Package: libinstant-meshes-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ libinstant-meshes0 (= ${binary:Version}),
+ ${misc:Depends},
+Description: Instant field-aligned meshes library - development files
+ Development headers and link library for libinstant-meshes.
+ .
+ This is Volumental's internal fork of the instant-meshes project,
+ modified for use as a shared library in mesh processing pipelines.

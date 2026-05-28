@@ -98,7 +98,7 @@ if (INSTANT_MESHES_DEV_MODE)
   add_definitions(-DDEV_MODE)
 endif()
 
-add_library(instant_meshes
+add_library(instant_meshes SHARED
   src/aabb.h
   src/common.h
   src/meshio.h src/meshio.cpp
@@ -128,16 +128,21 @@ elseif (APPLE)
   #pass
 else()
   # Insulate from a few types of ABI changes by statically linking against libgcc and libstdc++
-  set_target_properties(instant_meshes PROPERTIES LINK_FLAGS "-static-libgcc")
+  # Removed: static-libgcc incompatible with shared library
   #set_target_properties(instant_meshes PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++")
 endif()
 
 target_link_libraries(instant_meshes tbb)
 
+set_target_properties(instant_meshes PROPERTIES
+  VERSION 0.1.1
+  SOVERSION 0
+)
+
 install(TARGETS instant_meshes
   RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 install(FILES src/batch.h src/common.h
